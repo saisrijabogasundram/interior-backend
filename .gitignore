@@ -1,0 +1,22 @@
+# Virtual environment
+venv/                  ← don't upload packages to GitHub
+
+# Environment variables
+.env                   ← never upload your MySQL password
+
+# Python cache
+__pycache__/           ← auto-generated files, not needed
+*.pyc
+*.pyo
+
+# Django
+*.log                  ← log files, not needed
+db.sqlite3             ← harmless, just ignore it
+media/                 ← uploaded images go here, too large for GitHub
+
+# VS Code
+.vscode/               ← editor settings, personal to your machine
+
+# Windows
+Thumbs.db              ← Windows auto-generated, not needed
+desktop.ini            ← Windows auto-generated, not needed
