@@ -27,20 +27,19 @@ SECRET_KEY = 'django-insecure-yi#8r4x*=wl252*hk&j+*ked2)*#m^4y&#v&kvwibbh7*^=5&^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ["interior-fullstack-production.up.railway.app",
-    "127.0.0.1",
-    "localhost"]
-CSRF_TRUSTED_ORIGINS = [
-    "https://interior-fullstack-production.up.railway.app"
-]
-CSRF_COOKIE_SECURE = True
+
 SESSION_COOKIE_SECURE = True
 
 SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG',default=False, cast=bool)
 ALLOWED_HOSTS = ['*']
 
-FAST2SMS_API_KEY = 'bFUM5hqxgPlQ7eZV4EAdDtHvzWXBiKr1k3fauN9Gp0sJSyo8I29fvLTOp1XjKS8nCbNcUiJFero6V5H7'
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.up.railway.app"
+]
+CSRF_COOKIE_SECURE = True
+
+FAST2SMS_API_KEY = config('FAST2SMS_API_KEY')
 # Application definition
 
 INSTALLED_APPS = [
