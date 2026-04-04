@@ -27,7 +27,6 @@ class User(AbstractUser):
     profile_picture = models.ImageField(upload_to='profiles/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    # Designer specific fields
     specialization = models.CharField(max_length=50, choices=SPECIALIZATION_CHOICES, blank=True, null=True)
     experience_years = models.PositiveIntegerField(default=0)
     bio = models.TextField(blank=True, null=True)
