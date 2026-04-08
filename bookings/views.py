@@ -2,22 +2,22 @@ from django.shortcuts import render
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from .models import Designer, Booking
 from .serializers import DesignerSerializer, BookingSerializer
 from users.permissions import IsStaffOrAbove
+
 
 class CustomerBookingView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        # customer sees only their bookings
         bookings = Booking.objects.filter(customer=request.user)
         serializer = BookingSerializer(bookings, many=True)
         return Response(serializer.data)
 
     def post(self, request):
-        serializer = BookingSerializer(data=request.data)
+        serializer = BookingSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save(customer=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -28,7 +28,6 @@ class ManageBookingsView(APIView):
     permission_classes = [IsStaffOrAbove]
 
     def get(self, request):
-        # staff sees all bookings
         bookings = Booking.objects.all().order_by('-created_at')
         serializer = BookingSerializer(bookings, many=True)
         return Response(serializer.data)
@@ -45,8 +44,10 @@ class ManageBookingsView(APIView):
         booking = Booking.objects.get(pk=pk)
         booking.delete()
         return Response({'message': 'Booking deleted'})
+
+
 class DesignerListView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request):
         designers = Designer.objects.filter(is_available=True)
@@ -55,7 +56,7 @@ class DesignerListView(APIView):
 
 
 class DesignerDetailView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request, pk):
         try:
@@ -76,31 +77,23 @@ class DesignerCreateView(APIView):
         serializer = DesignerSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(user=request.user)
-            return Response(
-                serializer.data,
-                status=status.HTTP_201_CREATED
-            )
-        return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST
-        )
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class BookingCreateView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def post(self, request):
-        serializer = BookingSerializer(data=request.data)
+        serializer = BookingSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
-            serializer.save(customer=request.user)
-            return Response(
-                serializer.data,
-                status=status.HTTP_201_CREATED
-            )
-        return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST
-        )
+            # Save with customer if logged in, otherwise guest booking
+            if request.user and request.user.is_authenticated:
+                serializer.save(customer=request.user)
+            else:
+                serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class BookingListView(APIView):
@@ -128,15 +121,12 @@ class BookingDetailView(APIView):
 
     def put(self, request, pk):
         try:
-            booking = Booking.objects.get(pk=pk,customer=request.user)
+            booking = Booking.objects.get(pk=pk, customer=request.user)
             serializer = BookingSerializer(booking, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data)
-            return Response(
-                serializer.errors,
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Booking.DoesNotExist:
             return Response(
                 {'error': 'Booking not found'},

@@ -1,6 +1,6 @@
 from django.db import models
 from django.conf import settings
-# from django.contrib.auth.models import User
+
 class Designer(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -38,11 +38,20 @@ class Booking(models.Model):
         ('5L_10L', '₹5 Lakhs - ₹10 Lakhs'),
         ('above_10L', 'Above ₹10 Lakhs'),
     )
+
+
     customer = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name='customer_bookings'
+        related_name='customer_bookings',
+        blank=True,
+        null=True
     )
+
+  
+    guest_name = models.CharField(max_length=200, blank=True, null=True)
+    guest_phone = models.CharField(max_length=20, blank=True, null=True)
+
     designer = models.ForeignKey(
         Designer,
         on_delete=models.CASCADE,
@@ -74,4 +83,5 @@ class Booking(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.customer.username} → {self.designer.user.username} ({self.status})"
+        name = self.customer.username if self.customer else self.guest_name
+        return f"{name} → {self.designer.user.username} ({self.status})"
