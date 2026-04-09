@@ -8,6 +8,11 @@ class Design(models.Model):
         ('office', 'Office'),
         ('modular_furniture', 'Modular Furniture'),
         ('lighting_decor', 'Lighting & Decor'),
+        ('bathroom', 'Bathroom'),          
+        ('balcony', 'Balcony & Foyer'),    
+        ('full_home', 'Full Home'),         
+        ('luxury', 'Luxury'),               
+        ('renovation', 'Renovation'),       
     )
 
     STYLE_CHOICES = (
