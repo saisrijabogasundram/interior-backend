@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'bookings',
     'products',
     'projects',
+    'chatbot',
 
 ]
 
